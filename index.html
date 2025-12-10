@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>行動指針ワークの順番</title>
+  <style>
+    html,body{height:100%;margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,'Helvetica Neue',Arial;display:grid;place-items:center;background:#f5f5f5;color:#111}
+    .card{width:min(600px,90vw);background:#fff;padding:24px;border-radius:12px;box-shadow:0 6px 20px rgba(0,0,0,0.1);border:1px solid #ddd;text-align:center}
+    h1{margin:0 0 8px 0;font-size:1.8rem}
+    .date-range{color:#555;font-size:0.95rem;margin-bottom:12px}
+    .pattern{font-size:1.4rem;margin:8px 0}
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>行動指針ワークの順番</h1>
+    <div class="date-range" id="range">—</div>
+    <div class="pattern" id="pattern1">—</div>
+    <div class="pattern" id="pattern2">—</div>
+  </div>
+<script>
+// 주간 패턴 리스트
+const patterns = [
+  ["・ゆいさん&イ　｜　禅さん&なこうさん", "・ゆいさん&なこうさん　｜　禅さん&イ"],
+  ["・禅さん&ゆいさん　｜　なこうさん&イ", "・ゆいさん&イ　｜　禅さん&なこうさん"],
+  ["・ゆいさん&なこうさん　｜　禅さん&イ", "・禅さん&ゆいさん　｜　なこうさん&イ"]
+];
+
+const WEEK_MS = 7 * 24 * 60 * 60 * 1000;
+function isoWeekStartUTC(date){
+  const d = new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()));
+  const day = d.getUTCDay();
+  const delta = ((day + 6) % 7);
+  d.setUTCDate(d.getUTCDate() - delta);
+  d.setUTCHours(0,0,0,0);
+  return d;
+}
+function formatYMDJP(d){
+  return d.getFullYear() + '年' + (d.getMonth()+1) + '月' + d.getDate() + '日';
+}
+function currentPatternIndex(){
+  const epochBase = isoWeekStartUTC(new Date('2025-12-01T00:00:00Z'));
+  const now = new Date();
+  const thisWeek = isoWeekStartUTC(now);
+  const diffWeeks = Math.floor((thisWeek - epochBase)/WEEK_MS);
+  return diffWeeks % patterns.length;
+}
+function render(){
+  const idx = currentPatternIndex();
+  const weekStart = isoWeekStartUTC(new Date());
+  const weekEnd = new Date(weekStart.getTime() + WEEK_MS - 1);
+  document.getElementById('pattern1').textContent = patterns[idx][0];
+  document.getElementById('pattern2').textContent = patterns[idx][1];
+  document.getElementById('range').textContent = `${formatYMDJP(weekStart)}～${formatYMDJP(weekEnd)}`;
+}
+window.addEventListener('load', render);
+</script>
+</body>
+</html>
